@@ -2,6 +2,7 @@
 
 I built this to solve a real problem I kept running into at work — Glue jobs that quietly rack up costs because nobody's watching them closely enough. This tool points an AI at a job's run history and tells you exactly what's wrong and what to fix.
 
+![Architecture](architecture.png)
 
 ## The problem it solves
 

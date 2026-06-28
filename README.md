@@ -2,6 +2,8 @@
 
 I built this to solve a real problem I kept running into at work — Glue jobs that quietly rack up costs because nobody's watching them closely enough. This tool points an AI at a job's run history and tells you exactly what's wrong and what to fix.
 
+![Architecture](architecture.png)
+
 ## The problem it solves
 
 AWS Glue jobs are easy to overprovision and hard to debug after the fact. You set 10 workers, the job runs, costs money, fails occasionally — and unless you're digging through CloudWatch manually, you don't know why. This tool automates that investigation.

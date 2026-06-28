@@ -1,0 +1,8 @@
+.env
+*.zip
+lambda/
+.venv/
+__pycache__/
+*.pyc
+response.json
+.DS_Store

@@ -1,0 +1,28 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "GlueReadAccess",
+            "Effect": "Allow",
+            "Action": [
+                "glue:GetJob",
+                "glue:GetJobRun",
+                "glue:GetJobRuns",
+                "glue:ListJobs",
+                "glue:GetJobs",
+                "glue:BatchGetJobs"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "CloudWatchReadAccess",
+            "Effect": "Allow",
+            "Action": [
+                "cloudwatch:GetMetricData",
+                "cloudwatch:GetMetricStatistics",
+                "cloudwatch:ListMetrics"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

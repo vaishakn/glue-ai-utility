@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glue AI Utility</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }
+        h1 { color: #1F4E79; border-bottom: 3px solid #2E75B6; padding-bottom: 10px; }
+        .card { background: white; border-radius: 8px; padding: 24px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        button { background: #1F4E79; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #2E75B6; }
+        button:disabled { background: #aaa; cursor: not-allowed; }
+        .result { background: #E8F4FD; border-left: 4px solid #2E75B6; padding: 16px; margin: 16px 0; border-radius: 0 8px 8px 0; }
+        .error  { background: #FDE8E8; border-left: 4px solid #c00; padding: 16px; margin: 16px 0; border-radius: 0 8px 8px 0; }
+        .metric { display: inline-block; background: #1F4E79; color: white; padding: 8px 16px; margin: 4px; border-radius: 20px; font-size: 13px; }
+        .rec { background: #E8F5ED; border: 1px solid #1E6B3C; padding: 12px; margin: 8px 0; border-radius: 4px; }
+        .rec.HIGH   { border-color: #c00; background: #FDE8E8; }
+        .rec.MEDIUM { border-color: #7F3C00; background: #FEF3E8; }
+        pre { background: #f0f0f0; padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+        #spinner { display: none; text-align: center; padding: 20px; color: #1F4E79; }
+    </style>
+</head>
+<body>
+    <h1>⚡ AWS Glue AI Utility</h1>
+    <p style="color:#555">AI-powered cost analysis and optimization for AWS Glue jobs</p>
+ 
+    <div class="card">
+        <label><strong>Glue Job Name</strong></label>
+        <input type="text" id="jobName" placeholder="etl-raw-to-processed" />
+ 
+        <label><strong>Your Question</strong></label>
+        <textarea id="query" rows="3" placeholder="Why did this job cost more last week? How can I optimize it?"></textarea>
+ 
+        <button onclick="analyze()" id="btn">Analyze Job</button>
+    </div>
+ 
+    <div id="spinner">Fetching Glue data and calling AI... this takes 10-20 seconds</div>
+    <div id="output"></div>
+ 
+    <script>
+        const API_URL = 'https://zw38uc6on4.execute-api.us-east-1.amazonaws.com/prod/optimize';       // replace with your API Gateway URL
+        const API_KEY = 'nOttrBiDhF510wO2gtnzB28DI5fXp6H96s4U8VNc'; // replace with your API key
+ 
+        async function analyze() {
+            const jobName = document.getElementById('jobName').value.trim();
+            const query   = document.getElementById('query').value.trim();
+            const output  = document.getElementById('output');
+            const btn     = document.getElementById('btn');
+            const spinner = document.getElementById('spinner');
+ 
+            if (!jobName) { alert('Please enter a job name'); return; }
+ 
+            btn.disabled    = true;
+            spinner.style.display = 'block';
+            output.innerHTML = '';
+ 
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': API_KEY,
+                    },
+                    body: JSON.stringify({ job_name: jobName, query: query || 'Analyze cost and performance' })
+                });
+ 
+                const data = await response.json();
+ 
+                if (!response.ok) {
+                    output.innerHTML = `<div class="error"><strong>Error ${response.status}:</strong> ${data.error || 'Unknown error'}</div>`;
+                    return;
+                }
+ 
+                const summary = data.job_summary;
+                const ai      = data.ai_analysis;
+ 
+                output.innerHTML = `
+                    <div class="card">
+                        <h2>Job Summary: ${data.job_name}</h2>
+                        <span class="metric">Runs: ${summary.total_runs}</span>
+                        <span class="metric">Failed: ${summary.failed_runs}</span>
+                        <span class="metric">Total Cost: $${summary.total_cost_usd}</span>
+                        <span class="metric">Avg Duration: ${summary.avg_duration_min} min</span>
+                    </div>
+ 
+                    <div class="card">
+                        <h2>AI Analysis</h2>
+                        <div class="result">${ai.analysis || ''}</div>
+ 
+                        <h3>Issues Found</h3>
+                        ${(ai.issues_found || []).map(i => `<div class="rec">${i}</div>`).join('')}
+ 
+                        <h3>Recommendations</h3>
+                        ${(ai.recommendations || []).map(r => `
+                            <div class="rec ${r.priority}">
+                                <strong>[${r.priority}]</strong> ${r.action}<br>
+                                <em>Expected saving: ${r.expected_saving}</em>
+                            </div>
+                        `).join('')}
+ 
+                        <h3>Cost Estimate</h3>
+                        <div class="result">
+                            Current: <strong>${ai.estimated_monthly_cost}</strong> /month &nbsp;|&nbsp;
+                            Optimized: <strong>${ai.optimized_monthly_cost}</strong> /month
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                output.innerHTML = `<div class="error"><strong>Request failed:</strong> ${err.message}</div>`;
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
+ 

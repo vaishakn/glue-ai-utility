@@ -66,15 +66,3 @@ aws lambda invoke \
 - **CloudWatch** — performance metrics
 - **Claude AI** — analysis and recommendations
 
-## Files
-src/
-
-├── handler.py         # entry point, request parsing, response formatting
-
-├── glue_fetcher.py    # STS role assumption + Glue and CloudWatch calls
-
-└── bedrock_caller.py  # prompt construction + AI API call + response parsing
-
-## Note on Bedrock
-
-Originally built for Amazon Bedrock. New AWS accounts need support approval for Anthropic model access — switched to the direct Anthropic API in the meantime. The architecture doesn't change, just the endpoint in bedrock_caller.py.
